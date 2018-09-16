@@ -260,5 +260,6 @@ paket-files/
 __pycache__/
 *.pyc
 
-*.vcxproj
-*.vcxproj.filters
+AGAP.vcxproj.filters
+AGAP.vcxproj
+result.txt
