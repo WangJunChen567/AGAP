@@ -20,11 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AGAP.cpp" />
+    <ClCompile Include="AGAP_1.cpp" />
     <ClCompile Include="global.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AGAP.h" />
+    <ClInclude Include="AGAP_1.h" />
+    <ClInclude Include="AGAP_2.h" />
     <ClInclude Include="global.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
