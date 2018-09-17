@@ -19,19 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AGAP.cpp" />
-    <ClCompile Include="AGAP_1.cpp" />
-    <ClCompile Include="AGAP_2.cpp" />
-    <ClCompile Include="AGAP_3.cpp" />
-    <ClCompile Include="global.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="core\AGAP.cpp" />
+    <ClCompile Include="core\global.cpp" />
+    <ClCompile Include="core\main.cpp" />
+    <ClCompile Include="instance\AGAP_1.cpp" />
+    <ClCompile Include="instance\AGAP_2.cpp" />
+    <ClCompile Include="instance\AGAP_3.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AGAP.h" />
-    <ClInclude Include="AGAP_1.h" />
-    <ClInclude Include="AGAP_2.h" />
-    <ClInclude Include="AGAP_3.h" />
-    <ClInclude Include="global.h" />
+    <ClInclude Include="core\AGAP.h" />
+    <ClInclude Include="core\global.h" />
+    <ClInclude Include="instance\AGAP_1.h" />
+    <ClInclude Include="instance\AGAP_2.h" />
+    <ClInclude Include="instance\AGAP_3.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

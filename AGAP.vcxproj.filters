@@ -1,18 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="AGAP.cpp" />
-    <ClCompile Include="global.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="AGAP_1.cpp" />
-    <ClCompile Include="AGAP_2.cpp" />
-    <ClCompile Include="AGAP_3.cpp" />
+    <ClCompile Include="core\AGAP.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\global.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\main.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="instance\AGAP_1.cpp">
+      <Filter>instance</Filter>
+    </ClCompile>
+    <ClCompile Include="instance\AGAP_2.cpp">
+      <Filter>instance</Filter>
+    </ClCompile>
+    <ClCompile Include="instance\AGAP_3.cpp">
+      <Filter>instance</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AGAP.h" />
-    <ClInclude Include="global.h" />
-    <ClInclude Include="AGAP_2.h" />
-    <ClInclude Include="AGAP_1.h" />
-    <ClInclude Include="AGAP_3.h" />
+    <ClInclude Include="core\AGAP.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\global.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="instance\AGAP_1.h">
+      <Filter>instance</Filter>
+    </ClInclude>
+    <ClInclude Include="instance\AGAP_3.h">
+      <Filter>instance</Filter>
+    </ClInclude>
+    <ClInclude Include="instance\AGAP_2.h">
+      <Filter>instance</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="core">
+      <UniqueIdentifier>{2f9e7018-3324-43b5-a4b8-a2f3cb6dd47c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="instance">
+      <UniqueIdentifier>{208891fe-6981-457a-964e-841d96dc0e59}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

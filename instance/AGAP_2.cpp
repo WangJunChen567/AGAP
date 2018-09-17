@@ -19,7 +19,7 @@ void AGAP_2::initialize() {
 				arr_ter.resize(2);
 		}
 	}
-	infile.open("./proce_time.csv");
+	infile.open("data/proce_time.csv");
 	size_t i = 0;
 	while (std::getline(infile, line)) {
 		std::stringstream row(line);
@@ -33,7 +33,7 @@ void AGAP_2::initialize() {
 	}
 	infile.close();
 
-	infile.open("./pass_info.csv");
+	infile.open("data/pass_info.csv");
 	while (std::getline(infile, line)) {
 		std::vector<int> temp_row;
 		std::stringstream row(line);
@@ -83,7 +83,7 @@ bool AGAP_2::dominate(const solution & s1, const solution & s2) {
 }
 
 void Alg_2::output_result() {
-	std::ofstream outfile("./result_2.txt");
+	std::ofstream outfile("result/result_2.txt");
 	outfile << "Total evaluations: " << m_evaluations << std::endl;
 	outfile << "The best one's objectives:\t" << std::endl;
 	outfile << "\t" << "total process time: " << m_best[0]->m_objs[1] << std::endl;

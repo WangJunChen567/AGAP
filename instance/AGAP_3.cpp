@@ -10,7 +10,7 @@ void AGAP_3::initialize() {
 	std::ifstream infile;
 	std::string line;
 
-	infile.open("./gate_info.csv");
+	infile.open("data/gate_info.csv");
 	std::getline(infile, line);
 	std::stringstream row(line);
 	std::string temp;
@@ -18,7 +18,7 @@ void AGAP_3::initialize() {
 		m_gate_info.push_back(atoi(temp.c_str()));
 	infile.close();
 
-	infile.open("./walk_time.csv");
+	infile.open("data/walk_time.csv");
 	while (std::getline(infile, line)) {
 		std::vector<size_t> temp_row;
 		std::stringstream row(line);
@@ -38,7 +38,7 @@ void AGAP_3::initialize() {
 				arr_ter.resize(2);
 		}
 	}
-	infile.open("./metro_times.csv");
+	infile.open("data/metro_times.csv");
 	size_t i = 0;
 	while (std::getline(infile, line)) {
 		std::stringstream row(line);
@@ -80,7 +80,7 @@ void AGAP_3::evaluate(solution & sol) {
 }
 
 void Alg_3::output_result() {
-	std::ofstream outfile("./result_3.txt");
+	std::ofstream outfile("result/result_3.txt");
 	outfile << "Total evaluations: " << m_evaluations << std::endl;
 	outfile << "The best one's objectives:\t" << std::endl;
 	outfile << "\t" << "total transfer tension: " << m_best[0]->m_objs[1] << std::endl;

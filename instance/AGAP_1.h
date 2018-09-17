@@ -1,4 +1,5 @@
-#include "AGAP.h"
+#include "../core/AGAP.h"
+#include <random>
 
 struct tran {
 	tran(size_t index) : m_index(index) {}

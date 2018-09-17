@@ -1,16 +1,18 @@
 #include "AGAP_1.h"
-#include "global.h"
+#include "../core/global.h"
+#include <list>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <numeric>
+#include <algorithm>
 
 void AGAP_1::initialize() {
 	std::ifstream infile;
 	std::string line;
 
-	infile.open("./trans_time.csv");
+	infile.open("data/trans_time.csv");
 	while (std::getline(infile, line)) {
 		std::stringstream row(line);
 		std::string temp;
@@ -23,7 +25,7 @@ void AGAP_1::initialize() {
 	}
 	infile.close();
 
-	infile.open("./gates_to_trans.csv");
+	infile.open("data/gates_to_trans.csv");
 	while (std::getline(infile, line)) {
 		std::vector<size_t> temp_trans;
 		std::stringstream row(line);
@@ -144,7 +146,7 @@ void Alg_1::evolve() {
 }
 
 void Alg_1::output_result() {
-	std::ofstream outfile("./result_1.txt");
+	std::ofstream outfile("result/result_1.txt");
 	outfile << "Total evaluations: " << m_evaluations << std::endl;
 	outfile << "The minimum number of gates: " << m_best[0]->m_objs[0] << std::endl;
 	outfile << std::endl;

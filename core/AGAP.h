@@ -2,9 +2,7 @@
 #define AGAP_H
 
 #include <vector>
-#include <list>
 #include <memory>
-#include <random>
 
 struct solution {
 	solution(size_t num_objs, size_t num_trans, size_t num_gates) : m_objs(num_objs), m_gate_of_tran(num_trans), m_trans_in_gate(num_gates), m_delays(num_trans, 0) {}

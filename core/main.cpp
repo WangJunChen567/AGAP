@@ -1,4 +1,4 @@
-#include "AGAP_3.h"
+#include "../instance/AGAP_3.h"
 #include "global.h"
 
 int main() {
