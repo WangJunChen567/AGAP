@@ -263,3 +263,4 @@ __pycache__/
 AGAP.vcxproj.filters
 AGAP.vcxproj
 result.txt
+*.txt

@@ -7,18 +7,24 @@
 #include <random>
 
 struct solution {
-	solution(size_t num_TRAs, size_t num_PORs) : m_pi(std::vector<std::vector<bool>>(num_TRAs,std::vector<bool>(num_PORs,false))), m_delays(num_TRAs, 0) {}
-	std::vector<std::vector<bool>> m_pi; // [i=TRA][j=POR]
+	solution(size_t num_objs, size_t num_trans, size_t num_gates) : m_objs(num_objs), m_gate_of_tran(num_trans), m_trans_in_gate(num_gates), m_delays(num_trans, 0) {}
+	std::vector<std::vector<size_t>> m_trans_in_gate;
+	std::vector<int> m_gate_of_tran;
 	std::vector<size_t> m_delays;
-	std::vector<size_t> m_obj;
+	std::vector<double> m_objs;
 };
 
 class problem {
 public:
-	problem() = default;
+	problem(size_t num_objs) : m_num_objs(num_objs) {}
 	virtual void initialize() = 0;
 	virtual void initialize_solution(solution& sol) = 0;
 	virtual void evaluate(solution& sol) = 0;
+	virtual bool same(const solution& s1, const solution& s2) = 0;
+	virtual bool dominate(const solution& s1, const solution& s2) = 0;
+	size_t num_objs() { return m_num_objs; }
+protected:
+	size_t m_num_objs;
 };
 
 class algorithm {

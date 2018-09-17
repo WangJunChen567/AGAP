@@ -1,30 +1,25 @@
 #include "AGAP.h"
 
-struct TRA {
-	TRA(size_t index) : m_index(index) {}
+struct tran {
+	tran(size_t index) : m_index(index) {}
 	const size_t m_index;
-	TRA* m_next = nullptr;
-	TRA* m_last = nullptr;
+	tran* m_next = nullptr;
+	tran* m_last = nullptr;
 };
 
-class POR_to_TRAs {
+class list_trans_in_gate {
 private:
-	TRA * m_begin = nullptr;
-	TRA *m_end = nullptr;
+	tran * m_begin = nullptr;
+	tran *m_end = nullptr;
 public:
-	POR_to_TRAs() {}
+	list_trans_in_gate() {}
 
-	//POR_to_TRAs(const POR_to_TRAs& rsh) {
-	//	for (const TRA* i = rsh.begin(); i != nullptr; i = i->m_next)
-	//		push_back(i->m_index);
-	//}
-
-	~POR_to_TRAs() {
+	~list_trans_in_gate() {
 		while (m_end != nullptr)
 			erase(m_end);
 	}
-	TRA* push_back(size_t index) {
-		TRA* new_node(new TRA(index));
+	tran* push_back(size_t index) {
+		tran* new_node(new tran(index));
 		if (m_begin != nullptr) {
 			new_node->m_last = m_end;
 			m_end->m_next = new_node;
@@ -36,7 +31,7 @@ public:
 		}
 		return new_node;
 	}
-	void erase(TRA* node) {
+	void erase(tran* node) {
 		if (node != m_begin && node != m_end) {
 			node->m_last->m_next = node->m_next;
 			node->m_next->m_last = node->m_last;
@@ -55,10 +50,10 @@ public:
 		}
 		delete node;
 	}
-	TRA* begin() { return m_begin; }
-	TRA* end() { return m_end; }
-	const TRA* begin() const { return m_begin; }
-	const TRA* end() const { return m_end; }
+	tran* begin() { return m_begin; }
+	tran* end() { return m_end; }
+	const tran* begin() const { return m_begin; }
+	const tran* end() const { return m_end; }
 	bool empty() { return m_begin == nullptr; }
 };
 
@@ -66,16 +61,18 @@ public:
 
 class AGAP_1 : public problem {
 public:
-	AGAP_1() = default;
+	AGAP_1(size_t num_objs = 1) : problem(num_objs) {}
 	void initialize();
 	void initialize_solution(solution& sol);
 	void evaluate(solution& sol);
-	size_t num_TRAs() { return m_num_TRAs; }
-	size_t num_PORs() { return m_num_PORs; }
+	bool same(const solution& s1, const solution& s2);
+	bool dominate(const solution& s1, const solution& s2);
+	size_t num_trans() { return m_num_trans; }
+	size_t num_gates() { return m_num_gates; }
 protected:
-	std::vector<std::pair<size_t, size_t>> m_TRAs_arrive_leave;
-	std::vector<std::vector<size_t>> m_PORs_to_TRAs;
-	size_t m_num_TRAs = 0, m_num_PORs = 0;
+	std::vector<std::pair<size_t, size_t>> m_time_of_trans;
+	std::vector<std::vector<size_t>> m_feasi_trans_of_gate;
+	size_t m_num_trans = 0, m_num_gates = 0;
 	std::default_random_engine m_random_generator;
 };
 
