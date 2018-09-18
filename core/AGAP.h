@@ -5,9 +5,9 @@
 #include <memory>
 
 struct solution {
-	solution(size_t num_objs, size_t num_trans, size_t num_gates) : m_objs(num_objs), m_gate_of_tran(num_trans), m_trans_in_gate(num_gates), m_delays(num_trans, 0) {}
-	std::vector<std::vector<size_t>> m_trans_in_gate;
-	std::vector<int> m_gate_of_tran;
+	solution(size_t num_objs, size_t num_pucks, size_t num_gates) : m_objs(num_objs), m_gate_of_puck(num_pucks, -1), m_pucks_in_gate(num_gates), m_delays(num_pucks, 0) {}
+	std::vector<std::vector<size_t>> m_pucks_in_gate;
+	std::vector<int> m_gate_of_puck;
 	std::vector<size_t> m_delays;
 	std::vector<double> m_objs;
 };

@@ -1,4 +1,5 @@
 #include "AGAP_3.h"
+#include "../core/global.h"
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -10,7 +11,7 @@ void AGAP_3::initialize() {
 	std::ifstream infile;
 	std::string line;
 
-	infile.open("data/gate_info.csv");
+	infile.open("data/area_type_of_each_gate.csv");
 	std::getline(infile, line);
 	std::stringstream row(line);
 	std::string temp;
@@ -18,7 +19,7 @@ void AGAP_3::initialize() {
 		m_gate_info.push_back(atoi(temp.c_str()));
 	infile.close();
 
-	infile.open("data/walk_time.csv");
+	infile.open("data/walk_time_by_gate_area_type.csv");
 	while (std::getline(infile, line)) {
 		std::vector<size_t> temp_row;
 		std::stringstream row(line);
@@ -38,7 +39,7 @@ void AGAP_3::initialize() {
 				arr_ter.resize(2);
 		}
 	}
-	infile.open("data/metro_times.csv");
+	infile.open("data/metro_times_by_puck_and_gate.csv");
 	size_t i = 0;
 	while (std::getline(infile, line)) {
 		std::stringstream row(line);
@@ -54,10 +55,20 @@ void AGAP_3::initialize() {
 }
 
 void AGAP_3::evaluate(solution & sol) {
-	AGAP_1::evaluate(sol);
-	double total_transfer_tension = 0;
-	for (auto& pass : m_pass_info) {
-		double connection_time = m_time_of_trans[pass[2]].second - m_time_of_trans[pass[1]].first;
+	//size_t num_assigned_pucks(0);
+	size_t num_used_gates(0);
+	//for (size_t gate_of_puck : sol.m_gate_of_tran)
+	//	if (gate_of_puck != -1)
+	//		num_assigned_pucks++;
+	for (auto& pucks_in_gate : sol.m_pucks_in_gate)
+		if (!pucks_in_gate.empty())
+			num_used_gates++;
+	double mean_transfer_tension = 0;
+	size_t num_succes_pass = 0;
+	for (auto& pass : m_ticket_info) {
+		if (sol.m_gate_of_puck[pass[1]] == -1 || sol.m_gate_of_puck[pass[2]] == -1)
+			continue;
+		double connection_time = m_time_of_puck[pass[2]].second - m_time_of_puck[pass[1]].first;
 		double transfer_time = 0;
 		if (pass[1] == -1 && pass[2] == -1)
 			throw("error @ AGAP_2::evaluate");
@@ -69,31 +80,93 @@ void AGAP_3::evaluate(solution & sol) {
 			pass[2] = pass[1];
 			pass[4] = pass[3];
 		}
-		size_t arr_ter = sol.m_gate_of_tran[pass[1]] < 28 ? 0 : 1;
-		size_t lea_ter = sol.m_gate_of_tran[pass[2]] < 28 ? 0 : 1;
+		size_t arr_ter = sol.m_gate_of_puck[pass[1]] < 28 ? 0 : 1;
+		size_t lea_ter = sol.m_gate_of_puck[pass[2]] < 28 ? 0 : 1;
 		transfer_time += m_proce_time[pass[3]][pass[4]][arr_ter][lea_ter];
-		transfer_time += 8./5 * m_metro_times[pass[3]][pass[4]][arr_ter][lea_ter];
-		transfer_time += m_walk_time[m_gate_info[sol.m_gate_of_tran[pass[1]]]][m_gate_info[sol.m_gate_of_tran[pass[2]]]];
-		total_transfer_tension += pass[0] * transfer_time / connection_time;
+		transfer_time += 8. / 5 * m_metro_times[pass[3]][pass[4]][arr_ter][lea_ter];
+		transfer_time += m_walk_time[m_gate_info[sol.m_gate_of_puck[pass[1]]]][m_gate_info[sol.m_gate_of_puck[pass[2]]]];
+		if (transfer_time <= connection_time) {
+			mean_transfer_tension += pass[0] * transfer_time / connection_time;
+			num_succes_pass += pass[0];
+		}
 	}
-	sol.m_objs[1] = total_transfer_tension;
+	mean_transfer_tension /= num_succes_pass;
+	sol.m_objs[0] = num_succes_pass;
+	sol.m_objs[1] = mean_transfer_tension;
+	sol.m_objs[2] = num_used_gates;
+}
+
+void AGAP_3::record_pass_info(const solution & sol, std::vector<size_t>& nums_passengers, std::vector<double>& transfer_times, std::vector<double>& transfer_tensions) {
+	transfer_times.clear();
+	transfer_tensions.clear();
+	for (auto& ticket : m_ticket_info) {
+		nums_passengers.push_back(ticket[0]);
+		if (sol.m_gate_of_puck[ticket[1]] == -1 || sol.m_gate_of_puck[ticket[2]] == -1) {
+			transfer_times.push_back(-1);
+			transfer_tensions.push_back(-1);
+			continue;
+		}
+		double connection_time = m_time_of_puck[ticket[2]].second - m_time_of_puck[ticket[1]].first;
+		double transfer_time = 0;
+		if (ticket[1] == -1 && ticket[2] == -1)
+			throw("error @ AGAP_2::evaluate");
+		else if (ticket[1] == -1) {
+			ticket[1] = ticket[2];
+			ticket[3] = ticket[4];
+		}
+		else if (ticket[2] == -1) {
+			ticket[2] = ticket[1];
+			ticket[4] = ticket[3];
+		}
+		size_t arr_ter = sol.m_gate_of_puck[ticket[1]] < 28 ? 0 : 1;
+		size_t lea_ter = sol.m_gate_of_puck[ticket[2]] < 28 ? 0 : 1;
+		transfer_time += m_proce_time[ticket[3]][ticket[4]][arr_ter][lea_ter];
+		transfer_time += 8. / 5 * m_metro_times[ticket[3]][ticket[4]][arr_ter][lea_ter];
+		transfer_time += m_walk_time[m_gate_info[sol.m_gate_of_puck[ticket[1]]]][m_gate_info[sol.m_gate_of_puck[ticket[2]]]];
+		if (transfer_time <= connection_time) {
+			transfer_times.push_back(transfer_time);
+			transfer_tensions.push_back(transfer_time / connection_time);
+		}
+		else {
+			transfer_times.push_back(-1);
+			transfer_tensions.push_back(-1);
+		}
+	}
 }
 
 void Alg_3::output_result() {
-	std::ofstream outfile("result/result_3.txt");
-	outfile << "Total evaluations: " << m_evaluations << std::endl;
-	outfile << "The best one's objectives:\t" << std::endl;
-	outfile << "\t" << "total transfer tension: " << m_best[0]->m_objs[1] << std::endl;
-	outfile << "\t" << "the number of gates: " << m_best[0]->m_objs[0] << std::endl;
-	outfile << std::endl;
+	std::stringstream temp_outfile;
 
-	for (auto& best : m_best) {
-		for (size_t j = 0; j < best->m_trans_in_gate.size(); j++) {
-			outfile << "Gate" << j << ": ";
-			for (size_t tra : best->m_trans_in_gate[j])
-				outfile << "tra" << tra << " ";
-			outfile << std::endl;
+	temp_outfile << "The total number of evaluations: " << m_evaluations << std::endl;
+	temp_outfile << "The best one's objectives:\t" << std::endl;
+	temp_outfile << "\t" << "the number of transferred passengers: " << m_best[0]->m_objs[0] << std::endl;
+	temp_outfile << "\t" << "the average transfer tension of transferred passengers: " << m_best[0]->m_objs[1] << std::endl;
+	temp_outfile << "\t" << "the number of used gates: " << m_best[0]->m_objs[2] << std::endl;
+	temp_outfile << std::endl;
+
+	for (size_t idx = 0; idx < m_best.size(); ++idx) {
+		std::vector<double> usage_rates;
+		AGAP_1_CAST->record_gate_info(*m_best[idx], usage_rates);
+		temp_outfile << "The best solution " << idx + 1 << ": pucks in each gate: " << std::endl;
+		for (size_t j = 0; j < m_best[idx]->m_pucks_in_gate.size(); j++) {
+			temp_outfile << "Gate" << j << "(" << std::fixed << std::setprecision(4) << usage_rates[j] << "): ";
+			for (size_t tra : m_best[idx]->m_pucks_in_gate[j])
+				temp_outfile << "tra" << tra << " ";
+			temp_outfile << std::endl;
 		}
-		outfile << std::endl;
+		temp_outfile << std::endl;
+
+		temp_outfile << "The best solution " << idx + 1 << ": the transfer time and transfer tension of each passenger" << std::endl;
+		std::vector<size_t> nums_passengers;
+		std::vector<double> transfer_times, transfer_tensions;
+		AGAP_3_CAST->record_pass_info(*m_best[idx], nums_passengers, transfer_times, transfer_tensions);
+		for (size_t i = 0; i < nums_passengers.size(); i++)	{
+			for (size_t j = 0; j < nums_passengers[i]; j++)	{
+				temp_outfile << transfer_times[i] << "\t" << transfer_tensions[i] << std::endl;
+			}
+		}
 	}
+
+	std::ofstream outfile("result/result_3.txt");
+	outfile << temp_outfile.str();
 }
