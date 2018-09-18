@@ -1,6 +1,5 @@
 #include "AGAP_1.h"
 #include "../core/global.h"
-#include <list>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -120,14 +119,18 @@ void AGAP_1::record_gate_info(const solution & sol, std::vector<double>& usage_r
 bool AGAP_1::same(const solution & s1, const solution & s2) {
 	if (s1.m_objs[0] == s2.m_objs[0] && s1.m_objs[1] == s2.m_objs[1])
 		return true;
+	else if (!AGAP_1::dominate(s1, s2) && !AGAP_1::dominate(s2, s1))
+		return true;
 	else
 		return false;
 }
 
 bool AGAP_1::dominate(const solution & s1, const solution & s2) {
-	if (s1.m_objs[0] > s2.m_objs[0])
+	if (s1.m_objs[0] > s2.m_objs[0] && s1.m_objs[1] < s2.m_objs[1])
 		return true;
 	else if (s1.m_objs[0] == s2.m_objs[0] && s1.m_objs[1] < s2.m_objs[1])
+		return true;
+	else if (s1.m_objs[0] > s2.m_objs[0] && s1.m_objs[1] == s2.m_objs[1])
 		return true;
 	else
 		return false;
@@ -144,13 +147,22 @@ void Alg_1::initialize() {
 	// Find the best solution
 	m_best.push_back(std::unique_ptr<solution>(new solution(*m_pop[0])));
 	for (size_t i = 1; i < m_pop.size(); i++) {
-		if (global::ms_global->m_problem->same(*m_pop[i],*m_best[0]))
-			m_best.push_back(std::unique_ptr<solution>(new solution(*m_pop[i])));
-		else if (global::ms_global->m_problem->dominate(*m_pop[i], *m_best[0])) {
-			m_best.clear();
-			m_best.push_back(std::unique_ptr<solution>(new solution(*m_pop[i])));
+		bool dominated = false;
+		for (auto iter = m_best.begin(); iter != m_best.end();) {
+			if (global::ms_global->m_problem->dominate(**iter, *m_pop[i])) {
+				dominated = true;
+				break;
+			}
+			if (global::ms_global->m_problem->dominate(*m_pop[i], **iter)) {
+				iter = m_best.erase(iter);
+			}
+			else
+				iter++;
 		}
+		if (!dominated)
+			m_best.push_back(std::unique_ptr<solution>(new solution(*m_pop[i])));
 	}
+	std::cout << "Evaluations:" << m_evaluations << std::endl;
 }
 
 void Alg_1::evolve() {
@@ -163,12 +175,18 @@ void Alg_1::evolve() {
 	}
 	// Find the best solution
 	for (size_t i = 0; i < m_pop.size(); i++) {
-		if (global::ms_global->m_problem->same(*m_pop[i], *m_best[0]))
-			m_best.push_back(std::unique_ptr<solution>(new solution(*m_pop[i])));
-		else if (global::ms_global->m_problem->dominate(*m_pop[i], *m_best[0])) {
-			m_best.clear();
-			m_best.push_back(std::unique_ptr<solution>(new solution(*m_pop[i])));
+		bool dominated = false;
+		for (auto iter = m_best.begin(); iter != m_best.end(); ++iter) {
+			if (global::ms_global->m_problem->dominate(**iter, *m_pop[i])) {
+				dominated = true;
+				break;
+			}
+			if (global::ms_global->m_problem->dominate(*m_pop[i], **iter)) {
+				m_best.erase(iter);
+			}
 		}
+		if (!dominated)
+			m_best.push_back(std::unique_ptr<solution>(new solution(*m_pop[i])));
 	}
 	std::cout << "Evaluations:" << m_evaluations << std::endl;
 }
@@ -176,24 +194,29 @@ void Alg_1::evolve() {
 void Alg_1::output_result() {
 	std::stringstream temp_outfile;
 
-	temp_outfile << "The total number of evaluations: " << m_evaluations << std::endl;
-	temp_outfile << "The best one's objectives:\t" << std::endl;
-	temp_outfile << "\t" << "the number of assigned pucks: " << m_best[0]->m_objs[0] << std::endl;
-	temp_outfile << "\t" << "the number of used gates: " << m_best[0]->m_objs[1] << std::endl;
-	temp_outfile << std::endl;
+	//temp_outfile << "The total number of evaluations: " << m_evaluations << std::endl;
+	//temp_outfile << "The best one's objectives:\t" << std::endl;
+	//temp_outfile << "\t" << "the number of assigned pucks: " << m_best[0]->m_objs[0] << std::endl;
+	//temp_outfile << "\t" << "the number of used gates: " << m_best[0]->m_objs[1] << std::endl;
+	//temp_outfile << std::endl;
 
-	for (size_t idx = 0; idx < m_best.size(); ++idx) {
-		std::vector<double> usage_rates;
-		AGAP_1_CAST->record_gate_info(*m_best[idx], usage_rates);
-		temp_outfile << "The best solution " << idx + 1 << ": pucks in each gate: " << std::endl;
-		for (size_t j = 0; j < m_best[idx]->m_pucks_in_gate.size(); j++) {
-			temp_outfile << "Gate" << j << "(" << std::fixed << std::setprecision(4) << usage_rates[j] << "): ";
-			for (size_t tra : m_best[idx]->m_pucks_in_gate[j])
-				temp_outfile << "tra" << tra << " ";
-			temp_outfile << std::endl;
-		}
-		temp_outfile << std::endl;
+	temp_outfile << "obj1,obj2" << std::endl;
+	for (auto iter = m_best.begin(); iter != m_best.end(); ++iter) {
+		temp_outfile << (*iter)->m_objs[0] << "," << (*iter)->m_objs[1] << std::endl;
 	}
+
+	//for (size_t idx = 0; idx < m_best.size(); ++idx) {
+	//	std::vector<double> usage_rates;
+	//	AGAP_1_CAST->record_gate_info(*m_best[idx], usage_rates);
+	//	temp_outfile << "The best solution " << idx + 1 << ": pucks in each gate: " << std::endl;
+	//	for (size_t j = 0; j < m_best[idx]->m_pucks_in_gate.size(); j++) {
+	//		temp_outfile << "Gate" << j << "(" << std::fixed << std::setprecision(4) << usage_rates[j] << "): ";
+	//		for (size_t tra : m_best[idx]->m_pucks_in_gate[j])
+	//			temp_outfile << "tra" << tra << " ";
+	//		temp_outfile << std::endl;
+	//	}
+	//	temp_outfile << std::endl;
+	//}
 
 	std::ofstream outfile("result/result_1.txt");
 	outfile << temp_outfile.str();

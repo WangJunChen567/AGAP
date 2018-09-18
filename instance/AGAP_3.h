@@ -7,7 +7,7 @@
 
 class AGAP_3 : public AGAP_2 {
 public:
-	AGAP_3(size_t num_objs = 3) : AGAP_2(num_objs) {}
+	AGAP_3(size_t num_objs = 2) : AGAP_2(num_objs) {}
 	void initialize();
 	void evaluate(solution& sol);
 	void record_pass_info(const solution & sol, std::vector<size_t>& nums_passengers, std::vector<double>& transfer_times, std::vector<double>& transfer_tensions);

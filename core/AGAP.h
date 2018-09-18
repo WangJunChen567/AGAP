@@ -2,6 +2,7 @@
 #define AGAP_H
 
 #include <vector>
+#include <list>
 #include <memory>
 
 struct solution {
@@ -36,7 +37,7 @@ private:
 	bool terminating();
 protected:
 	std::vector<std::unique_ptr<solution>> m_pop;
-	std::vector<std::unique_ptr<solution>> m_best;
+	std::list<std::unique_ptr<solution>> m_best;
 	size_t m_evaluations = 0;
 	size_t m_max_evaluations;
 };

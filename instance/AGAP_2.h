@@ -3,11 +3,14 @@
 
 #include "AGAP_1.h"
 
+#define AGAP_2_CAST dynamic_cast<AGAP_2*>(global::ms_global->m_problem.get())
+
 class AGAP_2 : public AGAP_1 {
 public:
-	AGAP_2(size_t num_objs = 3) : AGAP_1(num_objs) {}
+	AGAP_2(size_t num_objs = 2) : AGAP_1(num_objs) {}
 	void initialize();
 	void evaluate(solution& sol);
+	void record_pass_info(const solution & sol, std::vector<size_t>& nums_passengers, std::vector<int>& process_times);
 	bool same(const solution& s1, const solution& s2);
 	bool dominate(const solution& s1, const solution& s2);
 protected:
